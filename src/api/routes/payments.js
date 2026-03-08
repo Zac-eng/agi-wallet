@@ -63,6 +63,8 @@ function checkSpendingLimits(amount) {
 async function buildSignedAuth(wallet, to, amountUsdc) {
   const network = await wallet.getNetwork();
   const decimals = await wallet.getDecimals();
+  const name = await wallet.getName();
+  const version = await wallet.getVersion();
   const value = ethers.parseUnits(String(amountUsdc), decimals);
 
   const result = await signTransferWithAuthorization(wallet.signer, {
@@ -70,6 +72,8 @@ async function buildSignedAuth(wallet, to, amountUsdc) {
     chainId: network.chainId,
     to,
     value,
+    contractName: name,
+    contractVersion: version,
   });
 
   return result;

@@ -13,6 +13,7 @@ dotenv.config();
 const ERC20_ABI = [
   'function name() view returns (string)',
   'function symbol() view returns (string)',
+  'function version() view returns (string)',
   'function decimals() view returns (uint8)',
   'function balanceOf(address owner) view returns (uint256)',
   'function transfer(address to, uint256 amount) returns (bool)',
@@ -44,6 +45,8 @@ class AgentWallet {
     this.usdcAddress = process.env.USDC_CONTRACT_ADDRESS;
     this.usdc = new ethers.Contract(this.usdcAddress, ERC20_ABI, this.signer);
     this._decimals = null; // cached
+    this._name = null;     // cached
+    this._version = null;  // cached
   }
 
   /** Get the USDC contract decimals (cached). */
@@ -52,6 +55,30 @@ class AgentWallet {
       this._decimals = await this.usdc.decimals();
     }
     return this._decimals;
+  }
+
+  /** Get the USDC contract name (cached). */
+  async getName() {
+    if (this._name === null) {
+      try {
+        this._name = await this.usdc.name();
+      } catch (e) {
+        this._name = 'USD Coin'; // Fallback
+      }
+    }
+    return this._name;
+  }
+
+  /** Get the USDC contract version (cached). */
+  async getVersion() {
+    if (this._version === null) {
+      try {
+        this._version = await this.usdc.version();
+      } catch (e) {
+        this._version = '2'; // Fallback
+      }
+    }
+    return this._version;
   }
 
   /** Return the agent's wallet address. */
